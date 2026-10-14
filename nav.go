@@ -13,3 +13,12 @@ func cloneItems(items []string) []string {
 	copy(copied, items)
 	return copied
 }
+
+// clampIndex limita um indice ao intervalo valido da lista.
+// Retorna -1 quando a lista esta vazia ou o indice e invalido.
+func clampIndex(index, length int) int {
+	if length <= 0 || index < 0 || index >= length {
+		return -1
+	}
+	return index
+}

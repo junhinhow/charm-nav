@@ -68,6 +68,42 @@ func (s *Sidebar) Items() []string {
 	return cloneItems(s.items)
 }
 
+// Add adiciona itens ao final da lista do sidebar e retorna o indice do
+// primeiro item adicionado (-1 se nenhum item for adicionado).
+func (s *Sidebar) Add(items ...string) int {
+	if len(items) == 0 {
+		return -1
+	}
+	first := len(s.items)
+	s.items = append(s.items, items...)
+	return first
+}
+
+// Remove remove o item no indice informado e retorna o seu rotulo.
+// Retorna string vazia quando o indice e invalido.
+//
+// A selecao e ajustada: remover um item anterior ao selecionado mantem o
+// mesmo item selecionado e remover o proprio item selecionado move a
+// selecao para o proximo.
+func (s *Sidebar) Remove(index int) string {
+	idx := clampIndex(index, len(s.items))
+	if idx < 0 {
+		return ""
+	}
+
+	removed := s.items[idx]
+	s.items = append(s.items[:idx], s.items[idx+1:]...)
+
+	switch {
+	case idx < s.selected:
+		s.selected--
+	case s.selected >= len(s.items) && len(s.items) > 0:
+		s.selected = len(s.items) - 1
+	}
+
+	return removed
+}
+
 // Render retorna o menu lateral estilizado como string.
 //
 // O cursor e medido pela largura de exibicao (e nao em bytes), os itens que

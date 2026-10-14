@@ -49,6 +49,31 @@ func (b *Breadcrumb) Items() []string {
 	return cloneItems(b.items)
 }
 
+// Add adiciona itens ao final da trilha e retorna o indice do primeiro item
+// adicionado (-1 se nenhum item for adicionado).
+// Equivale a Push, mas aceita varios itens de uma vez.
+func (b *Breadcrumb) Add(items ...string) int {
+	if len(items) == 0 {
+		return -1
+	}
+	first := len(b.items)
+	b.items = append(b.items, items...)
+	return first
+}
+
+// Remove remove o item no indice informado e retorna o seu rotulo.
+// Retorna string vazia quando o indice e invalido.
+func (b *Breadcrumb) Remove(index int) string {
+	idx := clampIndex(index, len(b.items))
+	if idx < 0 {
+		return ""
+	}
+
+	removed := b.items[idx]
+	b.items = append(b.items[:idx], b.items[idx+1:]...)
+	return removed
+}
+
 // Render retorna o breadcrumb estilizado como string.
 // O ultimo item e exibido com estilo ativo (item atual).
 func (b *Breadcrumb) Render() string {

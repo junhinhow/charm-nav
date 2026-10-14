@@ -66,6 +66,41 @@ func (t *Tabs) Items() []string {
 	return cloneItems(t.items)
 }
 
+// Add adiciona itens ao final da lista de abas e retorna o indice do
+// primeiro item adicionado (-1 se nenhum item for adicionado).
+func (t *Tabs) Add(items ...string) int {
+	if len(items) == 0 {
+		return -1
+	}
+	first := len(t.items)
+	t.items = append(t.items, items...)
+	return first
+}
+
+// Remove remove a aba no indice informado e retorna o seu rotulo.
+// Retorna string vazia quando o indice e invalido.
+//
+// A aba ativa e ajustada: remover uma aba anterior a ativa mantem a mesma
+// aba ativa e remover a propria aba ativa move a selecao para a proxima.
+func (t *Tabs) Remove(index int) string {
+	idx := clampIndex(index, len(t.items))
+	if idx < 0 {
+		return ""
+	}
+
+	removed := t.items[idx]
+	t.items = append(t.items[:idx], t.items[idx+1:]...)
+
+	switch {
+	case idx < t.active:
+		t.active--
+	case t.active >= len(t.items) && len(t.items) > 0:
+		t.active = len(t.items) - 1
+	}
+
+	return removed
+}
+
 // Render retorna a barra de abas estilizada como string.
 func (t *Tabs) Render() string {
 	if len(t.items) == 0 {
