@@ -9,9 +9,9 @@ import (
 
 // Tabs representa uma barra de abas horizontal para navegacao.
 type Tabs struct {
-	items      []string
-	active     int
-	Separator  string
+	items         []string
+	active        int
+	Separator     string
 	ActiveStyle   lipgloss.Style
 	InactiveStyle lipgloss.Style
 }
@@ -19,7 +19,7 @@ type Tabs struct {
 // NewTabs cria uma nova barra de abas com os itens fornecidos.
 func NewTabs(items ...string) *Tabs {
 	return &Tabs{
-		items:     items,
+		items:     cloneItems(items),
 		active:    0,
 		Separator: " | ",
 		ActiveStyle: lipgloss.NewStyle().
@@ -61,8 +61,9 @@ func (t *Tabs) Previous() {
 }
 
 // Items retorna a lista de itens das abas.
+// O slice devolvido e uma copia: alterar-lo nao muda o estado interno.
 func (t *Tabs) Items() []string {
-	return t.items
+	return cloneItems(t.items)
 }
 
 // Render retorna a barra de abas estilizada como string.

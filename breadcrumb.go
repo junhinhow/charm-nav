@@ -8,8 +8,8 @@ import (
 
 // Breadcrumb representa uma trilha de navegacao (breadcrumb).
 type Breadcrumb struct {
-	items     []string
-	Separator string
+	items         []string
+	Separator     string
 	ActiveStyle   lipgloss.Style
 	InactiveStyle lipgloss.Style
 }
@@ -17,7 +17,7 @@ type Breadcrumb struct {
 // NewBreadcrumb cria um novo breadcrumb com os itens fornecidos.
 func NewBreadcrumb(items ...string) *Breadcrumb {
 	return &Breadcrumb{
-		items:     items,
+		items:     cloneItems(items),
 		Separator: " > ",
 		ActiveStyle: lipgloss.NewStyle().
 			Bold(true).
@@ -44,8 +44,9 @@ func (b *Breadcrumb) Pop() string {
 }
 
 // Items retorna a lista de itens do breadcrumb.
+// O slice devolvido e uma copia: alterar-lo nao muda o estado interno.
 func (b *Breadcrumb) Items() []string {
-	return b.items
+	return cloneItems(b.items)
 }
 
 // Render retorna o breadcrumb estilizado como string.
