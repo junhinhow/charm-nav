@@ -339,3 +339,44 @@ func TestSidebarSetSelectedIgnoraIndicesInvalidos(t *testing.T) {
 		t.Errorf("selecao esperada 0, obteve %d", sb.Selected())
 	}
 }
+
+func TestSidebarLargurasMinimas(t *testing.T) {
+	for _, width := range []int{1, 2, 3, 5, 10} {
+		sb := NewSidebar("Dashboard", "Usuarios")
+		sb.Width = width
+
+		for i, linha := range strings.Split(sb.Render(), "\n") {
+			if w := lipgloss.Width(linha); w != width {
+				t.Errorf("width=%d: linha %d tem largura %d", width, i, w)
+			}
+		}
+	}
+}
+
+func TestSidebarComCursorVazio(t *testing.T) {
+	sb := NewSidebar("Dashboard", "Usuarios")
+	sb.Cursor = ""
+
+	linhas := strings.Split(sb.Render(), "\n")
+	if len(linhas) != 2 {
+		t.Fatalf("esperava 2 linhas, obteve %d", len(linhas))
+	}
+	if col0, col1 := colunaDoTexto(t, linhas[0], "Dashboard"), colunaDoTexto(t, linhas[1], "Usuarios"); col0 != col1 {
+		t.Errorf("itens desalinhados: %d != %d", col0, col1)
+	}
+}
+
+func TestSidebarComCursorMaiorQueAAreaUtil(t *testing.T) {
+	sb := NewSidebar("Aa", "Bb")
+	sb.Cursor = ">>>>>>>>>>"
+
+	linhas := strings.Split(sb.Render(), "\n")
+	for i, linha := range linhas {
+		if w := lipgloss.Width(linha); w > sb.Width {
+			t.Errorf("linha %d tem largura %d, maior que Width %d", i, w, sb.Width)
+		}
+	}
+	if col0, col1 := colunaDoTexto(t, linhas[0], "Aa"), colunaDoTexto(t, linhas[1], "Bb"); col0 != col1 {
+		t.Errorf("itens desalinhados: %d != %d", col0, col1)
+	}
+}
