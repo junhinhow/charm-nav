@@ -2,7 +2,7 @@
 
 Navigation components for terminal UIs, styled with [Lipgloss](https://charm.land/lipgloss).
 
-> [Leia em Portugues](README.pt-br.md)
+> [Leia em Português](README.pt-br.md)
 
 ## Components
 
@@ -27,7 +27,9 @@ fmt.Println(tabs.Render())
 | `Next()` | Move to the next tab (wraps around) |
 | `Previous()` | Move to the previous tab (wraps around) |
 | `Active() int` | Get the active tab index |
-| `Items() []string` | Get all tab labels |
+| `Items() []string` | Get a **copy** of all tab labels |
+| `Add(items ...string) int` | Append tabs; returns the index of the first one added (`-1` if none) |
+| `Remove(index int) string` | Remove the tab at `index`; returns its label (`""` if the index is invalid) |
 | `Render() string` | Render the styled tab bar |
 
 **Customizable fields:** `Separator`, `ActiveStyle`, `InactiveStyle`
@@ -53,7 +55,9 @@ fmt.Println(bc.Render())
 | `NewBreadcrumb(items ...string)` | Create a new breadcrumb trail |
 | `Push(item string)` | Append an item |
 | `Pop() string` | Remove and return the last item |
-| `Items() []string` | Get all breadcrumb items |
+| `Items() []string` | Get a **copy** of all breadcrumb items |
+| `Add(items ...string) int` | Append items; returns the index of the first one added (`-1` if none) |
+| `Remove(index int) string` | Remove the item at `index`; returns its label (`""` if the index is invalid) |
 | `Render() string` | Render the styled breadcrumb |
 
 **Customizable fields:** `Separator`, `ActiveStyle`, `InactiveStyle`
@@ -68,10 +72,10 @@ Vertical menu with cursor indicator and selection highlighting.
 sidebar := nav.NewSidebar("Dashboard", "Users", "Settings", "Logs")
 sidebar.SetSelected(1)
 fmt.Println(sidebar.Render())
-//   Dashboard
-// ▸ Users        (selected, highlighted)
-//   Settings
-//   Logs
+//    Dashboard
+//  ▸ Users           (selected, highlighted)
+//    Settings
+//    Logs
 ```
 
 **API:**
@@ -83,12 +87,31 @@ fmt.Println(sidebar.Render())
 | `Next()` | Move to the next item (wraps around) |
 | `Previous()` | Move to the previous item (wraps around) |
 | `Selected() int` | Get the selected item index |
-| `Items() []string` | Get all menu items |
+| `Items() []string` | Get a **copy** of all menu items |
+| `Add(items ...string) int` | Append items; returns the index of the first one added (`-1` if none) |
+| `Remove(index int) string` | Remove the item at `index`; returns its label (`""` if the index is invalid) |
 | `Render() string` | Render the styled sidebar |
 
 **Customizable fields:** `Width`, `Cursor`, `SelectedStyle`, `UnselectedStyle`
 
+**Rendering rules:**
+
+- The cursor is measured in **display columns**, not bytes — `"▸ "` is 2 columns wide even
+  though it is 4 bytes long, so every item stays aligned.
+- Items that do not fit in `Width` are **truncated**, never wrapped, so a long label can
+  never push the menu out of the terminal.
+- The selection highlight covers the **entire line width**, not just the text.
+- `Remove` keeps the selection consistent: removing an item before the selected one
+  keeps the same item selected, and removing the selected item moves the selection to
+  the next one.
+
 ---
+
+## Notes
+
+- `Items()` returns a copy: mutating the returned slice never changes the component.
+- The constructors copy the variadic slice, so the caller keeps ownership of it.
+- `Add`/`Remove` are available on every component (`Tabs`, `Breadcrumb` and `Sidebar`).
 
 ## Install
 
